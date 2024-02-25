@@ -39,13 +39,10 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {cards.map((card, index) => (
-          <Stack.Screen
-            key={index}
-            name={`PhotoCard${index}`}
-            component={() => <PhotoCard card={card} />}
-          />
-        ))}
+        <Stack.Screen
+          name={`PhotoCard`}
+          component={() => <PhotoCard card={cards[0]} />}
+        />
         <Stack.Screen name="ReelsPage" component={ReelsPage} />
       </Stack.Navigator>
     </NavigationContainer>
