@@ -24,7 +24,7 @@ const colors = {
   blue: '#00f',
 };
 
-const PhotoCard = ({card}) => {
+const InstaCard = ({card}) => {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const smallAnimatedHeartIconRef = useRef(null);
@@ -316,4 +316,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoCard;
+export default InstaCard;

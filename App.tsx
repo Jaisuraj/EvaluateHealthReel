@@ -2,7 +2,7 @@ import React from 'react';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import PhotoCard from './PhotoCard';
+import InstaCard from './InstaCard';
 import ReelsPage from './ReelsPage';
 
 const Stack = createStackNavigator();
@@ -32,7 +32,6 @@ const cards = [
       'https://via.placeholder.com/500',
     ],
   },
-  // Add more card data as needed
 ];
 
 const App = () => {
@@ -40,8 +39,8 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name={`PhotoCard`}
-          component={() => <PhotoCard card={cards[0]} />}
+          name={`InstaCard`}
+          component={() => <InstaCard card={cards[0]} />}
         />
         <Stack.Screen name="ReelsPage" component={ReelsPage} />
       </Stack.Navigator>
