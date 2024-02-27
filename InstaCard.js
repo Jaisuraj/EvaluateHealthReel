@@ -94,70 +94,57 @@ const InstaCard = ({card}) => {
       </View>
 
       {/* Video slider */}
-      <View style={{flex: 1}}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={200}>
-          {card.videos.map((videoUrl, index) => (
-            <TouchableOpacity
-              key={index}
-              activeOpacity={1}
-              style={styles.card}
-              onPress={() => handleVideoPress(videoUrl)}>
-              {videoUrl.endsWith('.mp4') ? (
-                <View style={styles.videoContainer}>
-                  <Video
-                    ref={ref => (videoRefs.current[index] = ref)}
-                    source={{uri: videoUrl}}
-                    style={styles.video}
-                    resizeMode="cover"
-                    paused={!isPlaying}
-                    muted={isMuted}
-                  />
-                  <TouchableOpacity
-                    style={styles.playPauseButton}
-                    onPress={togglePlayPause}>
-                    <Icon
-                      name={isPlaying ? 'pause' : 'play'}
-                      color={colors.white}
-                      size={24}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.muteButton}
-                    onPress={toggleMute}>
-                    <MaterialIcons
-                      name={isMuted ? 'volume-off' : 'volume-up'}
-                      size={24}
-                      color={colors.white}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Image
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={200}>
+        {card.videos.map((videoUrl, index) => (
+          <TouchableOpacity
+            key={index}
+            activeOpacity={1}
+            style={styles.card}
+            onPress={() => handleVideoPress(videoUrl)}>
+            {videoUrl.endsWith('.mp4') ? (
+              <View style={styles.videoContainer}>
+                <Video
+                  ref={ref => (videoRefs.current[index] = ref)}
                   source={{uri: videoUrl}}
-                  style={{width: '100%', height: '100%', borderRadius: 10}}
+                  style={styles.video}
+                  resizeMode="contain"
+                  paused={!isPlaying}
+                  muted={isMuted}
                 />
-              )}
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        {/* Scroll dots */}
-        <View style={styles.scrollDots}>
-          {card.videos.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.scrollDot,
-                {backgroundColor: index === 0 ? colors.white : colors.white},
-              ]}
-            />
-          ))}
-        </View>
-      </View>
+                <TouchableOpacity
+                  style={styles.playPauseButton}
+                  onPress={togglePlayPause}>
+                  <Icon
+                    name={isPlaying ? 'pause' : 'play'}
+                    color={colors.white}
+                    size={24}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.muteButton}
+                  onPress={toggleMute}>
+                  <MaterialIcons
+                    name={isMuted ? 'volume-off' : 'volume-up'}
+                    size={24}
+                    color={colors.white}
+                  />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Image
+                source={{uri: videoUrl}}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       {/* Footer */}
       <View style={styles.footerContainer}>
@@ -259,12 +246,17 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   videoContainer: {
+    width: Dimensions.get('window').width,
+    height: 200,
     position: 'relative',
-    width: '100%',
-    height: '100%',
   },
   video: {
     flex: 1,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
   },
   muteButton: {
     position: 'absolute',
@@ -293,26 +285,6 @@ const styles = StyleSheet.create({
   name: {
     color: colors.white,
     fontSize: 12,
-  },
-  scrollDots: {
-    position: 'absolute',
-    bottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  scrollDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 3,
-    marginHorizontal: 3,
-    backgroundColor: colors.white,
-  },
-  playPauseButton: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
   },
 });
 
