@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   ScrollView,
@@ -27,33 +27,13 @@ const colors = {
 const InstaCard = ({card}) => {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false); // Add isPlaying state
   const smallAnimatedHeartIconRef = useRef(null);
   const smallAnimatedBookmarkIconRef = useRef(null);
-  const videoRefs = useRef([]);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
-
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  const animateIcon = (iconRef, iconName) => {
-    iconRef.current.stopAnimation();
-
-    iconRef.current
-      .bounceIn()
-      .then(() => iconRef.current.bounceOut())
-      .then(() => iconRef.current.bounceIn())
-      .then(() =>
-        iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
-      );
-  };
+  const screenWidth = Dimensions.get('window').width;
+  const scrollViewRef = useRef(null);
+  const videoRefs = useRef([]);
 
   const handleOnPressLike = () => {
     animateIcon(smallAnimatedHeartIconRef, 'heart');
@@ -63,14 +43,20 @@ const InstaCard = ({card}) => {
     animateIcon(smallAnimatedBookmarkIconRef, 'bookmark');
   };
 
+  const animateIcon = (iconRef, iconName) => {
+    iconRef.current.stopAnimation();
+    iconRef.current
+      .bounceIn()
+      .then(() => iconRef.current.bounceOut())
+      .then(() =>
+        iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
+      );
+  };
+
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / screenWidth);
-    videoRefs.current.forEach((videoRef, i) => {
-      if (i !== index) {
-        videoRef?.current?.pause();
-      }
-    });
+    setIsPlaying(false); // Pause video on scroll
   };
 
   const handleVideoPress = videoUrl => {
@@ -95,6 +81,7 @@ const InstaCard = ({card}) => {
 
       {/* Video slider */}
       <ScrollView
+        ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -107,34 +94,13 @@ const InstaCard = ({card}) => {
             style={styles.card}
             onPress={() => handleVideoPress(videoUrl)}>
             {videoUrl.endsWith('.mp4') ? (
-              <View style={styles.videoContainer}>
-                <Video
-                  ref={ref => (videoRefs.current[index] = ref)}
-                  source={{uri: videoUrl}}
-                  style={styles.video}
-                  resizeMode="contain"
-                  paused={!isPlaying}
-                  muted={isMuted}
-                />
-                <TouchableOpacity
-                  style={styles.playPauseButton}
-                  onPress={togglePlayPause}>
-                  <Icon
-                    name={isPlaying ? 'pause' : 'play'}
-                    color={colors.white}
-                    size={24}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.muteButton}
-                  onPress={toggleMute}>
-                  <MaterialIcons
-                    name={isMuted ? 'volume-off' : 'volume-up'}
-                    size={24}
-                    color={colors.white}
-                  />
-                </TouchableOpacity>
-              </View>
+              <VideoPlayer
+                videoUrl={videoUrl}
+                index={index}
+                videoRefs={videoRefs}
+                isPlaying={isPlaying}
+                setIsPlaying={setIsPlaying} // Pass setIsPlaying
+              />
             ) : (
               <Image
                 source={{uri: videoUrl}}
@@ -287,5 +253,52 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
+const VideoPlayer = ({videoUrl, index, videoRefs, isPlaying, setIsPlaying}) => {
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const togglePlayPause = () => {
+    setIsPlaying(isPlaying => !isPlaying); // Toggle isPlaying
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  useEffect(() => {
+    // Add the video ref to the videoRefs array
+    videoRefs.current[index] = videoRef.current;
+  }, []);
+
+  return (
+    <View style={styles.videoContainer}>
+      <Video
+        ref={videoRef}
+        source={{uri: videoUrl}}
+        style={styles.video}
+        resizeMode="contain"
+        paused={!isPlaying}
+        muted={isMuted}
+      />
+      <TouchableOpacity
+        style={styles.playPauseButton}
+        onPress={togglePlayPause}>
+        <Icon
+          name={isPlaying ? 'pause' : 'play'}
+          color={colors.white}
+          size={24}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
+        <MaterialIcons
+          name={isMuted ? 'volume-off' : 'volume-up'}
+          size={24}
+          color={colors.white}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 export default InstaCard;

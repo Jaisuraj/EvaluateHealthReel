@@ -1,14 +1,12 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
-import InstaCard from './InstaCard'; // Assuming the InstaCard component is defined in a separate file';
+import InstaCard from './InstaCard';
 import {useNavigation} from '@react-navigation/native';
 
 const Multi = () => {
   const navigation = useNavigation();
 
-  // Assuming you have an array of cards
   const cards = [
-    // Sample card data
     {
       name: 'User 1',
       tagline: 'Tagline 1',
@@ -18,7 +16,7 @@ const Multi = () => {
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
         'https://via.placeholder.com/500',
-      ], // Sample video URLs
+      ],
     },
     {
       name: 'User 2',
@@ -29,9 +27,8 @@ const Multi = () => {
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
         'https://via.placeholder.com/500',
-      ], // Sample video URLs
+      ],
     },
-    // Add more cards as needed
   ];
 
   return (
