@@ -6,6 +6,7 @@ import {
   Dimensions,
   Text,
   Image,
+  ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -23,19 +24,28 @@ const colors = {
   blue: '#00f', // Blue color for verified badge
 };
 const {width, height} = Dimensions.get('window');
+
 const ReelsPage = () => {
   const route = useRoute();
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const {videoUrl, user} = route.params;
   const videoRef = useRef(null);
+  const currentVideoRef = useRef(null); // Ref for the currently playing video
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    if (videoRef.current) {
+      if (isPlaying) {
+        setIsPlaying(false);
+      } else {
+        setIsPlaying(true);
+      }
+      setIsPlaying(!isPlaying); // Toggle the isPlaying state
+    }
   };
 
   const toggleMute = () => {
@@ -60,14 +70,14 @@ const ReelsPage = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity style={styles.videoContainer} onPress={togglePlayPause}>
         <Video
           ref={videoRef}
           source={{uri: videoUrl}}
           style={styles.video}
           resizeMode="cover"
-          paused={!isPlaying}
+          paused={!isPlaying} // Start with paused state
           muted={isMuted}
           onProgress={data =>
             setVideoProgress(data.currentTime / data.seekableDuration)
@@ -130,7 +140,7 @@ const ReelsPage = () => {
           />
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -140,8 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   videoContainer: {
-    flex: 1,
-    position: 'relative',
+    height: height - 100, // 90% of screen height
   },
   video: {
     flex: 1,
@@ -201,7 +210,6 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 10,
     paddingBottom: 10,
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   slider: {
     width: '50%',

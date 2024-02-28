@@ -12,6 +12,7 @@ const Multi = () => {
       tagline: 'Tagline 1',
       verified: true,
       photo: require('./image.jpeg'),
+      photos: './image.jpeg',
       videos: [
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -23,6 +24,7 @@ const Multi = () => {
       tagline: 'Tagline 2',
       verified: false,
       photo: require('./image1.jpeg'),
+      photos: './image1.jpeg',
       videos: [
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',

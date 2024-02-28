@@ -60,7 +60,10 @@ const InstaCard = ({card}) => {
   };
 
   const handleVideoPress = videoUrl => {
-    navigation.navigate('ReelsPage', {videoUrl: videoUrl, user: card});
+    navigation.navigate('MultiReels', {
+      videoUrl: videoUrl,
+      user: card,
+    });
   };
 
   return (
