@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, StyleSheet, Dimensions} from 'react-native';
+import {FlatList, StyleSheet, Dimensions} from 'react-native';
 import ReelsPage from './ReelsPage'; // Assuming ReelsPage is your component
 
 const {width, height} = Dimensions.get('window');
@@ -20,14 +20,19 @@ const reelsData = [
 const MultipleReelsPage = ({route}) => {
   const {videoUrl, user} = route.params; // First reel data passed via params
   const firstReelData = {videoUrl, user};
+  const updatedReelsData = [firstReelData, ...reelsData];
+
+  const renderItem = ({item}) => (
+    <ReelsPage videoUrl={item.videoUrl} user={item.user} />
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
-      <ReelsPage videoUrl={firstReelData.videoUrl} user={firstReelData.user} />
-      {reelsData.map((data, index) => (
-        <ReelsPage key={index} videoUrl={data.videoUrl} user={data.user} />
-      ))}
-    </ScrollView>
+    <FlatList
+      data={updatedReelsData}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={styles.flatList}
+    />
   );
 };
 

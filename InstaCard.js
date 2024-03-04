@@ -13,7 +13,7 @@ import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon1 from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 
 const colors = {
   transparent: 'transparent',
@@ -27,13 +27,15 @@ const colors = {
 const InstaCard = ({card}) => {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false); // Add isPlaying state
-  const smallAnimatedHeartIconRef = useRef(null);
-  const smallAnimatedBookmarkIconRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackTime, setPlaybackTime] = useState(0);
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const screenWidth = Dimensions.get('window').width;
   const scrollViewRef = useRef(null);
   const videoRefs = useRef([]);
+  const smallAnimatedHeartIconRef = useRef(null);
+  const smallAnimatedBookmarkIconRef = useRef(null);
 
   const handleOnPressLike = () => {
     animateIcon(smallAnimatedHeartIconRef, 'heart');
@@ -53,10 +55,19 @@ const InstaCard = ({card}) => {
       );
   };
 
+  useEffect(() => {
+    if (isFocused) {
+      setIsPlaying(true); // Auto play when the screen is focused
+    } else {
+      setIsPlaying(false); // Pause when the screen is not focused
+    }
+  }, [isFocused]);
+
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / screenWidth);
-    setIsPlaying(false); // Pause video on scroll
+    // setPlaybackTime(videoRefs.current[index]?.getCurrentTime());
+    // setIsPlaying(false); // Pause video on scroll
   };
 
   const handleVideoPress = videoUrl => {
@@ -68,7 +79,6 @@ const InstaCard = ({card}) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.headerContainer}>
         <Image source={card.photo} style={styles.userPhoto} />
         <View style={styles.userInfo}>
@@ -82,7 +92,6 @@ const InstaCard = ({card}) => {
         </View>
       </View>
 
-      {/* Video slider */}
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -102,7 +111,9 @@ const InstaCard = ({card}) => {
                 index={index}
                 videoRefs={videoRefs}
                 isPlaying={isPlaying}
-                setIsPlaying={setIsPlaying} // Pass setIsPlaying
+                setIsPlaying={setIsPlaying}
+                playbackTime={playbackTime}
+                isFocused={isFocused}
               />
             ) : (
               <Image
@@ -115,7 +126,6 @@ const InstaCard = ({card}) => {
         ))}
       </ScrollView>
 
-      {/* Footer */}
       <View style={styles.footerContainer}>
         <View style={styles.iconContainer}>
           <TouchableOpacity activeOpacity={1} onPress={handleOnPressLike}>
@@ -216,7 +226,7 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     width: Dimensions.get('window').width,
-    height: 200,
+    height: 450,
     position: 'relative',
   },
   video: {
@@ -257,22 +267,34 @@ const styles = StyleSheet.create({
   },
 });
 
-const VideoPlayer = ({videoUrl, index, videoRefs, isPlaying, setIsPlaying}) => {
+const VideoPlayer = ({
+  videoUrl,
+  index,
+  videoRefs,
+  isPlaying,
+  setIsPlaying,
+  playbackTime,
+  isFocused,
+}) => {
   const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
-  const togglePlayPause = () => {
-    setIsPlaying(isPlaying => !isPlaying); // Toggle isPlaying
-  };
+  // useEffect(() => {
+  //   if (isPlaying && videoRef.current && isFocused) {
+  //     videoRef.current.seek(playbackTime);
+  //     videoRef.current.presentFullscreenPlayer();
+  //   } else {
+  //     videoRef.current.presentFullscreenPlayer();
+  //   }
+  // }, [isPlaying, isFocused]);
+
+  useEffect(() => {
+    videoRefs.current[index] = videoRef.current;
+  }, []);
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };
-
-  useEffect(() => {
-    // Add the video ref to the videoRefs array
-    videoRefs.current[index] = videoRef.current;
-  }, []);
 
   return (
     <View style={styles.videoContainer}>
@@ -281,18 +303,10 @@ const VideoPlayer = ({videoUrl, index, videoRefs, isPlaying, setIsPlaying}) => {
         source={{uri: videoUrl}}
         style={styles.video}
         resizeMode="contain"
-        paused={!isPlaying}
         muted={isMuted}
+        paused={!isPlaying || !isFocused}
+        repeat={true}
       />
-      <TouchableOpacity
-        style={styles.playPauseButton}
-        onPress={togglePlayPause}>
-        <Icon
-          name={isPlaying ? 'pause' : 'play'}
-          color={colors.white}
-          size={24}
-        />
-      </TouchableOpacity>
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <MaterialIcons
           name={isMuted ? 'volume-off' : 'volume-up'}

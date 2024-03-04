@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -14,6 +14,7 @@ import Icon1 from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useRoute} from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
+import {useIsFocused} from '@react-navigation/native';
 
 const colors = {
   transparent: 'transparent',
@@ -35,18 +36,15 @@ const ReelsPage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const {videoUrl, user} = route.params;
   const videoRef = useRef(null);
-  const currentVideoRef = useRef(null); // Ref for the currently playing video
+  const isFocused = useIsFocused();
 
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        setIsPlaying(false);
-      } else {
-        setIsPlaying(true);
-      }
-      setIsPlaying(!isPlaying); // Toggle the isPlaying state
+  useEffect(() => {
+    if (isFocused) {
+      setIsPlaying(true); // Auto play when the screen is focused
+    } else {
+      setIsPlaying(false); // Pause when the screen is not focused
     }
-  };
+  }, [isFocused]);
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
@@ -71,13 +69,13 @@ const ReelsPage = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.videoContainer} onPress={togglePlayPause}>
+      <TouchableOpacity style={styles.videoContainer}>
         <Video
           ref={videoRef}
           source={{uri: videoUrl}}
           style={styles.video}
           resizeMode="cover"
-          paused={!isPlaying} // Start with paused state
+          paused={!isPlaying || !isFocused} // Pause the video when the screen is not focused
           muted={isMuted}
           onProgress={data =>
             setVideoProgress(data.currentTime / data.seekableDuration)
@@ -150,7 +148,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   videoContainer: {
-    height: height - 100, // 90% of screen height
+    height: height, // 90% of screen height
   },
   video: {
     flex: 1,
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 10,
-    paddingBottom: 30,
+    paddingBottom: 100,
     flexDirection: 'column',
     alignItems: 'flex-end',
   },
@@ -170,7 +168,7 @@ const styles = StyleSheet.create({
   },
   muteButton: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 90,
     right: 10,
     zIndex: 1,
   },
@@ -209,7 +207,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 10,
-    paddingBottom: 10,
+    paddingBottom: 100,
   },
   slider: {
     width: '50%',

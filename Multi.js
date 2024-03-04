@@ -2,6 +2,7 @@ import React from 'react';
 import {ScrollView} from 'react-native';
 import InstaCard from './InstaCard';
 import {useNavigation} from '@react-navigation/native';
+import {View, FlatList} from 'react-native';
 
 const Multi = () => {
   const navigation = useNavigation();
@@ -34,11 +35,11 @@ const Multi = () => {
   ];
 
   return (
-    <ScrollView style={{flex: 1}}>
-      {cards.map((card, index) => (
-        <InstaCard key={index} card={card} navigation={navigation} />
-      ))}
-    </ScrollView>
+    <FlatList
+      data={cards}
+      renderItem={({item}) => <InstaCard card={item} />}
+      keyExtractor={(item, index) => index.toString()}
+    />
   );
 };
 
