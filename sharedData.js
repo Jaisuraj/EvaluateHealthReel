@@ -15,6 +15,20 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.black,
   },
+  paginationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#888', // Color for inactive dots
+    margin: 3,
+  },
+  activePaginationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#333', // Color for active dot
+    margin: 3,
+  },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -64,6 +78,19 @@ export const styles = StyleSheet.create({
   video: {
     flex: 1,
   },
+  videoCounterContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  videoCounterText: {
+    color: 'white',
+    fontSize: 12,
+  },
   image: {
     width: '100%',
     height: '100%',
@@ -94,6 +121,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.black,
   },
   name: {
+    color: colors.white,
+    fontSize: 12,
+  },
+  description: {
     color: colors.white,
     fontSize: 12,
   },

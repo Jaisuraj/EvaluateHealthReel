@@ -6,9 +6,16 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 
-const VideoPlayer = ({videoUrl, playing, setPlaying, card}) => {
+const VideoPlayer = ({
+  videoUrl,
+  playing,
+  setPlaying,
+  card,
+  handleOnPressLike,
+}) => {
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [liked, setLiked] = useState(true);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -28,6 +35,10 @@ const VideoPlayer = ({videoUrl, playing, setPlaying, card}) => {
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };
+  const handleOnDoubleTap = () => {
+    handleOnPressLike();
+    console.log('tapped ');
+  };
 
   return (
     <View style={styles.videoContainer}>
@@ -39,6 +50,7 @@ const VideoPlayer = ({videoUrl, playing, setPlaying, card}) => {
         paused={!setPlaying}
         muted={isMuted}
         onPress={handleVideoPress}
+        onDoubleTap={() => handleOnDoubleTap()}
       />
       <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
         <MaterialIcons

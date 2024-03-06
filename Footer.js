@@ -28,6 +28,7 @@ const Footer = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const smallAnimatedBookmarkIconRef = useRef(null);
   const [searchText, setSearchText] = useState('');
+
   const handleOnPressLike = () => {
     animateIcon(smallAnimatedHeartIconRef, 'heart');
   };
@@ -37,14 +38,17 @@ const Footer = () => {
   };
 
   const animateIcon = (iconRef, iconName) => {
-    iconRef.current.stopAnimation();
-    iconRef.current
-      .bounceIn()
-      .then(() => iconRef.current.bounceOut())
-      .then(() =>
-        iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
-      );
+    if (iconRef.current) {
+      iconRef.current.stopAnimation();
+      iconRef.current
+        .bounceIn()
+        .then(() => iconRef.current.bounceOut())
+        .then(() =>
+          iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
+        );
+    }
   };
+
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
