@@ -2,73 +2,93 @@ import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
   Image,
+  Text,
+  TouchableOpacity,
+  Modal,
   Dimensions,
 } from 'react-native';
-import Video from 'react-native-video';
-import * as Animatable from 'react-native-animatable';
-import Icon from 'react-native-vector-icons/AntDesign';
-import Icon1 from 'react-native-vector-icons/FontAwesome';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
-
-const colors = {
-  transparent: 'transparent',
-  white: '#fff',
-  heartColor: '#e92f3c',
-  textPrimary: '#515151',
-  black: '#000',
-  blue: '#00f',
-};
+import VideoPlayer from './VideoPlayer';
+import {dummyUsers, colors, styles} from './sharedData';
+import Header from './Header';
+import Footer from './Footer';
 
 const InstaCard = ({card}) => {
-  const [liked, setLiked] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackTime, setPlaybackTime] = useState(0);
-  const isFocused = useIsFocused();
+  // const [liked, setLiked] = useState(false);
+  // const [bookmarked, setBookmarked] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const isFocused1 = useIsFocused();
   const navigation = useNavigation();
-  const screenWidth = Dimensions.get('window').width;
   const scrollViewRef = useRef(null);
-  const videoRefs = useRef([]);
-  const smallAnimatedHeartIconRef = useRef(null);
-  const smallAnimatedBookmarkIconRef = useRef(null);
+  // const smallAnimatedHeartIconRef = useRef(null);
+  // const [modalVisible, setModalVisible] = useState(false);
+  // const smallAnimatedBookmarkIconRef = useRef(null);
 
-  const handleOnPressLike = () => {
-    animateIcon(smallAnimatedHeartIconRef, 'heart');
-  };
+  // Create state for tracking the playing state of each video
+  const [videoPlayingStates, setVideoPlayingStates] = useState(
+    card.videos.map(() => false),
+  );
 
-  const handleOnPressBookmark = () => {
-    animateIcon(smallAnimatedBookmarkIconRef, 'bookmark');
-  };
+  // const handleOnPressLike = () => {
+  //   animateIcon(smallAnimatedHeartIconRef, 'heart');
+  // };
 
-  const animateIcon = (iconRef, iconName) => {
-    iconRef.current.stopAnimation();
-    iconRef.current
-      .bounceIn()
-      .then(() => iconRef.current.bounceOut())
-      .then(() =>
-        iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
-      );
-  };
+  // const handleOnPressBookmark = () => {
+  //   animateIcon(smallAnimatedBookmarkIconRef, 'bookmark');
+  // };
 
-  useEffect(() => {
-    if (isFocused) {
-      setIsPlaying(true); // Auto play when the screen is focused
-    } else {
-      setIsPlaying(false); // Pause when the screen is not focused
-    }
-  }, [isFocused]);
+  // const animateIcon = (iconRef, iconName) => {
+  //   iconRef.current.stopAnimation();
+  //   iconRef.current
+  //     .bounceIn()
+  //     .then(() => iconRef.current.bounceOut())
+  //     .then(() =>
+  //       iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
+  //     );
+  // };
+  // const toggleModal = () => {
+  //   setModalVisible(modalVisible);
+  // };
+  // const renderUserCircles = () => {
+  //   return (
+  //     <View style={styles.userCircleContainer}>
+  //       {/* Render user circles */}
+  //       {dummyUsers.map(user => (
+  //         <TouchableOpacity
+  //           key={user.id}
+  //           style={styles.userCircle}
+  //           onPress={() => handleShareToUser(user)}>
+  //           <Image source={user.photo} style={styles.userImage} />
+  //           <Text style={styles.userName}>{user.name}</Text>
+  //         </TouchableOpacity>
+  //       ))}
+  //       {/* Button to share to WhatsApp */}
+  //       <TouchableOpacity
+  //         style={[styles.userCircle, {backgroundColor: 'lightblue'}]}
+  //         onPress={shareToWhatsApp}>
+  //         <Image
+  //           source={require('./whatsapp_logo1.png')}
+  //           style={styles.whatsappLogo}
+  //         />
+  //       </TouchableOpacity>
+  //     </View>
+  //   );
+  // };
 
-  const handleScroll = event => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / screenWidth);
-    // setPlaybackTime(videoRefs.current[index]?.getCurrentTime());
-    // setIsPlaying(false); // Pause video on scroll
-  };
+  // const shareToWhatsApp = () => {
+  //   // Implement your logic to share to WhatsApp
+  //   console.log('Shared to WhatsApp');
+  //   // Close the modal after sharing
+  //   setModalVisible(false);
+  // };
+
+  // const handleShareToUser = user => {
+  //   // Implement your logic to share the content to the selected user
+  //   console.log(`Shared to user: ${user.name}`);
+  //   // Close the modal after sharing
+  //   setModalVisible(false);
+  // };
 
   const handleVideoPress = videoUrl => {
     navigation.navigate('MultiReels', {
@@ -77,243 +97,71 @@ const InstaCard = ({card}) => {
     });
   };
 
+  const handleScroll = event => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffsetX / Dimensions.get('window').width);
+    setActiveIndex(index);
+  };
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollTo({
+      x: Dimensions.get('window').width * activeIndex,
+      animated: false,
+    });
+  }, [activeIndex, isFocused1]);
+
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Image source={card.photo} style={styles.userPhoto} />
-        <View style={styles.userInfo}>
-          <View style={styles.userNameContainer}>
-            <Text style={styles.userName}>{card.name}</Text>
-            {card.verified && (
-              <Image source={card.verifiedIcon} style={styles.verifiedIcon} />
-            )}
-          </View>
-          <Text style={styles.userTagline}>{card.tagline}</Text>
-        </View>
-      </View>
-
+      <Header card={card} />
       <ScrollView
         ref={scrollViewRef}
         horizontal
         pagingEnabled
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={true}
         onScroll={handleScroll}
         scrollEventThrottle={200}>
         {card.videos.map((videoUrl, index) => (
           <TouchableOpacity
             key={index}
             activeOpacity={1}
-            style={styles.card}
+            style={[
+              styles.videoContainer,
+              {width: Dimensions.get('window').width},
+            ]}
             onPress={() => handleVideoPress(videoUrl)}>
             {videoUrl.endsWith('.mp4') ? (
               <VideoPlayer
                 videoUrl={videoUrl}
                 index={index}
-                videoRefs={videoRefs}
-                isPlaying={isPlaying}
-                setIsPlaying={setIsPlaying}
-                playbackTime={playbackTime}
-                isFocused={isFocused}
+                playing={videoPlayingStates[index]}
+                setPlaying={playing => {
+                  const newPlayingStates = [...videoPlayingStates];
+                  newPlayingStates[index] = playing;
+                  setVideoPlayingStates(newPlayingStates);
+                }}
+                card={card}
               />
             ) : (
               <Image
                 source={{uri: videoUrl}}
-                style={styles.image}
+                style={{width: '100%', height: '100%'}}
                 resizeMode="cover"
               />
             )}
           </TouchableOpacity>
         ))}
       </ScrollView>
+      <Footer />
+      {/* <ModalContent
+        renderUserCircles={renderUserCircles}
+        modalVisible={modalVisible} // Correctly pass modalVisible prop
+        toggleModal={toggleModal} // Correctly pass toggleModal prop
+      /> */}
 
-      <View style={styles.footerContainer}>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity activeOpacity={1} onPress={handleOnPressLike}>
-            <Animatable.View
-              ref={smallAnimatedHeartIconRef}
-              style={styles.icon}
-              duration={300}
-              delay={200}>
-              <Icon
-                name={liked ? 'heart' : 'hearto'}
-                color={liked ? colors.heartColor : colors.white}
-                size={24}
-              />
-            </Animatable.View>
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={1}>
-            <MaterialIcons
-              name="comment"
-              size={24}
-              color={colors.white}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={1}>
-            <Icon1
-              name="send"
-              size={24}
-              color={colors.white}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity activeOpacity={1} onPress={handleOnPressBookmark}>
-          <Animatable.View
-            ref={smallAnimatedBookmarkIconRef}
-            style={styles.icon}
-            duration={300}
-            delay={200}>
-            <Icon1
-              name={bookmarked ? 'bookmark' : 'bookmark-o'}
-              color={bookmarked ? colors.heartColor : colors.white}
-              size={24}
-            />
-          </Animatable.View>
-        </TouchableOpacity>
-      </View>
       <View style={styles.photoDescriptionContainer}>
         <Text style={styles.name}>5342 likes</Text>
         <Text style={styles.name}>{card.name} new posts</Text>
       </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.black,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  userPhoto: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  userInfo: {
-    flex: 1,
-    color: colors.white,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.white,
-  },
-  userTagline: {
-    fontSize: 14,
-    color: colors.white,
-  },
-  userNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  verifiedIcon: {
-    width: 16,
-    height: 16,
-    marginLeft: 5,
-  },
-  card: {
-    width: Dimensions.get('window').width,
-    marginBottom: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  videoContainer: {
-    width: Dimensions.get('window').width,
-    height: 450,
-    position: 'relative',
-  },
-  video: {
-    flex: 1,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 10,
-  },
-  muteButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-  },
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    backgroundColor: colors.black,
-    alignItems: 'center',
-  },
-  iconContainer: {
-    flexDirection: 'row',
-  },
-  icon: {
-    marginRight: 10,
-    color: colors.white,
-  },
-  photoDescriptionContainer: {
-    padding: 10,
-    alignItems: 'left',
-    backgroundColor: colors.black,
-  },
-  name: {
-    color: colors.white,
-    fontSize: 12,
-  },
-});
-
-const VideoPlayer = ({
-  videoUrl,
-  index,
-  videoRefs,
-  isPlaying,
-  setIsPlaying,
-  playbackTime,
-  isFocused,
-}) => {
-  const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
-
-  // useEffect(() => {
-  //   if (isPlaying && videoRef.current && isFocused) {
-  //     videoRef.current.seek(playbackTime);
-  //     videoRef.current.presentFullscreenPlayer();
-  //   } else {
-  //     videoRef.current.presentFullscreenPlayer();
-  //   }
-  // }, [isPlaying, isFocused]);
-
-  useEffect(() => {
-    videoRefs.current[index] = videoRef.current;
-  }, []);
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  return (
-    <View style={styles.videoContainer}>
-      <Video
-        ref={videoRef}
-        source={{uri: videoUrl}}
-        style={styles.video}
-        resizeMode="contain"
-        muted={isMuted}
-        paused={!isPlaying || !isFocused}
-        repeat={true}
-      />
-      <TouchableOpacity style={styles.muteButton} onPress={toggleMute}>
-        <MaterialIcons
-          name={isMuted ? 'volume-off' : 'volume-up'}
-          size={24}
-          color={colors.white}
-        />
-      </TouchableOpacity>
     </View>
   );
 };

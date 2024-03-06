@@ -67,9 +67,13 @@ const ReelsPage = () => {
     videoRef.current.seek(newPosition);
   };
 
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.videoContainer}>
+      <TouchableOpacity style={styles.videoContainer} onPress={togglePlayPause}>
         <Video
           ref={videoRef}
           source={{uri: videoUrl}}
