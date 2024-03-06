@@ -32,6 +32,35 @@ const LongView = ({onClose, description}) => (
   </View>
 );
 
+const formatTimestamp = timestamp => {
+  const now = new Date();
+  console.log(now);
+  const postTime = new Date(timestamp);
+
+  const timeDiff = now.getTime() - postTime.getTime();
+  const seconds = Math.floor(timeDiff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    if (days === 1) {
+      return 'yesterday';
+    } else if (days < 7) {
+      return `${days} days ago`;
+    } else {
+      const options = {year: 'numeric', month: 'long', day: 'numeric'};
+      return postTime.toLocaleDateString(undefined, options);
+    }
+  } else if (hours > 0) {
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} ${minutes === 1 ? 'min' : 'mins'} ago`;
+  } else {
+    return 'few seconds ago';
+  }
+};
+
 const DescriptionComponent = ({description}) => {
   const [showLongView, setShowLongView] = useState(false);
 
@@ -168,6 +197,9 @@ const InstaCard = ({card}) => {
           <Text style={styles.name}>{card.name}</Text>
           <DescriptionComponent description={card.description} />
         </View>
+        <Text style={styles.name}>
+          Timestamp: {formatTimestamp(card.timestamp)}
+        </Text>
       </View>
     </View>
   );
