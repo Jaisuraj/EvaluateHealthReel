@@ -116,7 +116,7 @@ const InstaCard = ({card}) => {
         ref={scrollViewRef}
         horizontal
         pagingEnabled
-        showsHorizontalScrollIndicator={true}
+        showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={200}>
         {card.videos.map((videoUrl, index) => (

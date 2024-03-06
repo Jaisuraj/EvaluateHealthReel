@@ -29,26 +29,30 @@ const Footer = () => {
   const smallAnimatedBookmarkIconRef = useRef(null);
   const [searchText, setSearchText] = useState('');
 
+  // const [liked, setLiked] = useState(false);
+  // const smallAnimatedHeartIconRef = useRef(null);
+
+  const animateIcon = (iconRef, iconName) => {
+    iconRef.current.stopAnimation();
+
+    iconRef.current
+      .bounceIn()
+      .then(() => iconRef.current.bounceOut())
+      .then(() => iconRef.current.bounceIn())
+      .then(() =>
+        iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
+      );
+  };
+
   const handleOnPressLike = () => {
-    animateIcon(smallAnimatedHeartIconRef, 'heart');
+    //animateIcon(smallAnimatedHeartIconRef, 'heart');
+    setLiked(!liked);
   };
 
   const handleOnPressBookmark = () => {
-    animateIcon(smallAnimatedBookmarkIconRef, 'bookmark');
+    //animateIcon(smallAnimatedBookmarkIconRef, 'bookmark');
+    setBookmarked(!bookmarked);
   };
-
-  const animateIcon = (iconRef, iconName) => {
-    if (iconRef.current) {
-      iconRef.current.stopAnimation();
-      iconRef.current
-        .bounceIn()
-        .then(() => iconRef.current.bounceOut())
-        .then(() =>
-          iconName === 'heart' ? setLiked(!liked) : setBookmarked(!bookmarked),
-        );
-    }
-  };
-
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
@@ -106,7 +110,11 @@ const Footer = () => {
     <View style={styles.footerContainer}>
       <View style={styles.iconContainer}>
         <TouchableOpacity activeOpacity={1} onPress={handleOnPressLike}>
-          <Animatable.View style={styles.icon} duration={300} delay={200}>
+          <Animatable.View
+            ref={smallAnimatedHeartIconRef}
+            style={styles.icon}
+            duration={300}
+            delay={200}>
             <Icon
               name={liked ? 'heart' : 'hearto'}
               color={liked ? colors.heartColor : colors.white}
@@ -132,12 +140,17 @@ const Footer = () => {
         </TouchableOpacity>
       </View>
       <TouchableOpacity activeOpacity={1} onPress={handleOnPressBookmark}>
-        <Icon1
-          name={bookmarked ? 'bookmark' : 'bookmark-o'}
-          color={bookmarked ? colors.heartColor : colors.white}
-          size={24}
+        <Animatable.View
+          ref={smallAnimatedBookmarkIconRef}
           style={styles.icon}
-        />
+          duration={300}
+          delay={200}>
+          <Icon1
+            name={bookmarked ? 'bookmark' : 'bookmark-o'}
+            color={bookmarked ? colors.heartColor : colors.white}
+            size={24}
+          />
+        </Animatable.View>
       </TouchableOpacity>
       <Modal
         animationType="slide"
